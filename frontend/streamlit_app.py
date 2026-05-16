@@ -75,8 +75,8 @@ _init_state()
 
 # ── Login view ───────────────────────────────────────────────────────────────
 def render_login() -> None:
-    st.title("🤖 기술문서 분석 봇 (통합형)")
-    st.caption("백엔드 서버 없이 단일 앱으로 실행 중입니다.")
+    st.title("🤖 의료기기 기술문서 분석 봇")
+    st.caption("단일 에이전트가 기술문서를 분석하고 요약합니다. (통합형)")
     with st.form("login_form"):
         u = st.text_input("아이디")
         p = st.text_input("비밀번호", type="password")
