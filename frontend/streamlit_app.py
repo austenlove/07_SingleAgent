@@ -11,6 +11,10 @@ from typing import Any
 
 import httpx
 import streamlit as st
+from dotenv import load_dotenv
+
+# .env 파일 로드 (로컬 개발용)
+load_dotenv()
 
 try:
     import pdfplumber
@@ -55,7 +59,7 @@ def get_backend_url() -> str:
             return st.secrets["BACKEND_URL"]
     except Exception:
         pass
-    return os.getenv("BACKEND_URL", "https://www.med-ai-chat.streamlit.app")
+    return os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
 
 
 BACKEND_URL = get_backend_url()
