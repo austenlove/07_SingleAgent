@@ -47,10 +47,11 @@ st.markdown(
 <style>
 .stApp { background-color: #FFFFFF !important; color: #000000 !important; }
 [data-testid="stSidebar"] { background-color: #F8F9FA !important; border-right: 1px solid #E0E0E0 !important; }
-/* 모든 텍스트 요소를 검은색으로 강제 (배포 환경 다크모드 이슈 방지) */
-h1, h2, h3, h4, h5, h6, p, li, span, label, div { color: #000000 !important; }
-.stButton > button { background-color:#000;color:#FFF;border-radius:4px;border:none; width: 100%; }
-.stButton > button:hover { background-color:#333;color:#FFF; }
+/* 모든 텍스트 요소를 검은색으로 강제 (배포 환경 다크모드 이슈 방지), 단 버튼 내부 텍스트는 제외 */
+h1, h2, h3, h4, h5, h6, p, li, span, label, div:not(.stButton *) { color: #000000 !important; }
+.stButton > button { background-color:#000 !important; color:#FFFFFF !important; border-radius:4px; border:none; width: 100%; }
+.stButton > button:hover { background-color:#333 !important; color:#FFFFFF !important; }
+.stButton > button p { color: #FFFFFF !important; } /* 버튼 내부 p 태그 대응 */
 [data-testid="stChatInput"] { border:2px solid #000 !important; border-radius:8px !important; background-color:#FFF !important; }
 table { width:100%; border-collapse:collapse; margin:1.5rem 0; }
 th { background:#000 !important; color:#FFF !important; padding:12px; border:1px solid #000; text-align:left; }
