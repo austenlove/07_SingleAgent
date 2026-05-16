@@ -1,0 +1,15 @@
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: singleagent-backend:latest
+    container_name: singleagent-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    volumes:
+      # Mount persistent indexes so rebuilds don't wipe state.
+      - ../backend/data:/app/data
+    restart: unless-stopped
