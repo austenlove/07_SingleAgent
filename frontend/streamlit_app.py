@@ -55,7 +55,7 @@ def get_backend_url() -> str:
             return st.secrets["BACKEND_URL"]
     except Exception:
         pass
-    return os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+    return os.getenv("BACKEND_URL", "https://www.med-ai-chat.streamlit.app")
 
 
 BACKEND_URL = get_backend_url()
