@@ -84,11 +84,16 @@ def _post(path: str, json_body: dict, auth: bool = False) -> tuple[int, Any]:
     headers = {}
     if auth and st.session_state.token:
         headers["Authorization"] = f"Bearer {st.session_state.token}"
+    
+    url = f"{BACKEND_URL}{path}"
     try:
         with httpx.Client(timeout=120.0) as client:
-            r = client.post(f"{BACKEND_URL}{path}", json=json_body, headers=headers)
+            r = client.post(url, json=json_body, headers=headers)
             return r.status_code, (r.json() if r.headers.get("content-type", "").startswith("application/json") else r.text)
-    except httpx.HTTPError as exc:
+    except Exception as exc:
+        # 에러 발생 시 주소와 메시지 출력 (디버깅용)
+        st.error(f"🌐 접속 시도 URL: {url}")
+        st.error(f"⚠️ 통신 에러: {str(exc)}")
         return -1, {"detail": str(exc)}
 
 
