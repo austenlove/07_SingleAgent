@@ -17,7 +17,7 @@ from pydantic import ValidationError
 
 from .config import settings
 from .schemas.chat import ChatMessage, ChatResponse, ToolTrace
-from .schemas.curriculum import DocReport
+from .schemas.doc_report import DocReport
 from .tools import TOOL_REGISTRY, TOOL_SPECS
 
 
