@@ -47,15 +47,17 @@ st.markdown(
 <style>
 .stApp { background-color: #FFFFFF !important; color: #000000 !important; }
 [data-testid="stSidebar"] { background-color: #F8F9FA !important; border-right: 1px solid #E0E0E0 !important; }
-h1,h2,h3,h4,h5,h6 { color: #000000 !important; }
-.stButton > button { background-color:#000;color:#FFF;border-radius:4px;border:none; }
+/* 모든 텍스트 요소를 검은색으로 강제 (배포 환경 다크모드 이슈 방지) */
+h1, h2, h3, h4, h5, h6, p, li, span, label, div { color: #000000 !important; }
+.stButton > button { background-color:#000;color:#FFF;border-radius:4px;border:none; width: 100%; }
 .stButton > button:hover { background-color:#333;color:#FFF; }
 [data-testid="stChatInput"] { border:2px solid #000 !important; border-radius:8px !important; background-color:#FFF !important; }
 table { width:100%; border-collapse:collapse; margin:1.5rem 0; }
 th { background:#000 !important; color:#FFF !important; padding:12px; border:1px solid #000; text-align:left; }
 td { padding:12px; border:1px solid #E0E0E0; color:#000 !important; }
 tr:nth-child(even) { background-color:#F9F9F9; }
-.trace-pill { display:inline-block; padding:2px 8px; margin:2px; border-radius:999px; background:#111; color:#FFF; font-size:0.75rem; }
+/* 사이드바 내부 텍스트 색상 별도 지정 */
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] p, [data-testid="stSidebar"] span { color: #000000 !important; }
 </style>
 """,
     unsafe_allow_html=True,
@@ -75,22 +77,28 @@ _init_state()
 
 # ── Login view ───────────────────────────────────────────────────────────────
 def render_login() -> None:
-    st.title("🤖 의료기기 기술문서 분석 봇")
-    st.caption("단일 에이전트가 기술문서를 분석하고 요약합니다. (통합형)")
-    with st.form("login_form"):
-        u = st.text_input("아이디")
-        p = st.text_input("비밀번호", type="password")
-        submitted = st.form_submit_button("로그인", use_container_width=True)
+    # 화면 중앙에 배치하기 위해 컬럼 사용
+    _, col, _ = st.columns([1, 1.2, 1])
     
-    if submitted:
-        # 설정된 admin 계정과 직접 비교 (API 호출 없음)
-        if u == settings.admin_username and p == settings.admin_password:
-            st.session_state.token = "integrated-session"
-            st.session_state.username = u
-            st.success("로그인 성공")
-            st.rerun()
-        else:
-            st.error("아이디 또는 비밀번호가 올바르지 않습니다.")
+    with col:
+        st.write("") # 상단 여백
+        st.write("")
+        st.title("🤖 의료기기 기술문서 분석 봇")
+        st.caption("단일 에이전트가 기술문서를 분석하고 요약합니다. (통합형)")
+        
+        with st.form("login_form"):
+            u = st.text_input("아이디")
+            p = st.text_input("비밀번호", type="password")
+            submitted = st.form_submit_button("로그인", use_container_width=True)
+        
+        if submitted:
+            if u == settings.admin_username and p == settings.admin_password:
+                st.session_state.token = "integrated-session"
+                st.session_state.username = u
+                st.success("로그인 성공")
+                st.rerun()
+            else:
+                st.error("아이디 또는 비밀번호가 올바르지 않습니다.")
 
 # ── Chat view ────────────────────────────────────────────────────────────────
 def _render_trace() -> None:
@@ -158,8 +166,9 @@ def render_chat() -> None:
     with st.sidebar:
         st.markdown(f"👤 **{st.session_state.username}**")
         if st.button("로그아웃", use_container_width=True):
-            for k in ("token", "username", "messages", "last_doc_report", "last_trace", "uploaded_document", "uploaded_filename"):
-                st.session_state[k] = None if k in ("token", "username", "last_doc_report", "uploaded_document", "uploaded_filename") else []
+            # 모든 세션 상태 초기화
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
             st.rerun()
         st.divider()
 
@@ -177,7 +186,20 @@ def render_chat() -> None:
                 st.session_state.uploaded_document = text
                 st.session_state.uploaded_filename = uploaded_file.name
                 st.success(f"✅ **{uploaded_file.name}** 업로드 완료")
-        else:
+                
+                # 자동 요약 요청 생성
+                with st.spinner("문서 요약 생성 중..."):
+                    summary_prompt = f"새로운 문서 '{uploaded_file.name}'가 업로드되었습니다. 이 문서의 주요 구성과 핵심 내용을 표(Table) 형태로 요약해서 설명해줘."
+                    response = run_agent(
+                        user_message=summary_prompt,
+                        history=[ChatMessage(**m) for m in st.session_state.messages],
+                        uploaded_document=text
+                    )
+                    st.session_state.messages.append({"role": "user", "content": f"📎 문서 업로드: {uploaded_file.name}"})
+                    st.session_state.messages.append({"role": "assistant", "content": response.reply})
+                    st.session_state.last_doc_report = response.doc_report
+                    st.session_state.last_trace = response.tool_trace
+                st.rerun()
             st.session_state.uploaded_document = None
             st.session_state.uploaded_filename = None
 
