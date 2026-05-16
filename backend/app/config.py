@@ -17,11 +17,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 def _required(name: str) -> str:
+    # 1. os.environ 확인
     value = os.getenv(name, "").strip()
+    
+    # 2. Streamlit secrets 확인 (에러 방지를 위해 try-except)
+    if not value:
+        try:
+            import streamlit as st
+            if hasattr(st, "secrets") and name in st.secrets:
+                value = str(st.secrets[name]).strip()
+        except ImportError:
+            pass
+
     if not value:
         raise RuntimeError(
             f"Required environment variable '{name}' is not set. "
-            "Configure it in your .env or deployment secrets."
+            "Configure it in your .env or Streamlit Secrets."
         )
     return value
 
