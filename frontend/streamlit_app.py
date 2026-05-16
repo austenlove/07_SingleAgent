@@ -24,7 +24,7 @@ try:
 except ImportError:
     _DOCX_AVAILABLE = False
 
-st.set_page_config(page_title="SingleAgent 기술문서 분석 봇", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="의료기기 기술문서 분석 봇", page_icon="🤖", layout="wide")
 
 # Black & white theme reused from 03_Advanced_RAG.
 st.markdown(
@@ -50,11 +50,12 @@ tr:nth-child(even) { background-color:#F9F9F9; }
 
 
 def get_backend_url() -> str:
-    return (
-        st.secrets.get("BACKEND_URL")
-        if hasattr(st, "secrets") and "BACKEND_URL" in st.secrets
-        else os.getenv("BACKEND_URL", "http://localhost:8000")
-    )
+    try:
+        if "BACKEND_URL" in st.secrets:
+            return st.secrets["BACKEND_URL"]
+    except Exception:
+        pass
+    return os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
 
 
 BACKEND_URL = get_backend_url()
