@@ -151,6 +151,7 @@ def _build_user_prompt(args: dict) -> str:
         f"[분석 지시]\n{type_instruction}\n\n"
         "규칙:\n"
         "- 모든 텍스트는 한국어로 작성.\n"
+        "- **절대 HTML 태그를 사용하지 말 것.** 모든 서식(표, 강조 등)은 반드시 마크다운(Markdown) 형식을 사용.\n"
         "- document_title은 문서에서 추정 또는 추출.\n"
         "- overall_summary는 3~5문장으로 핵심만 서술.\n"
         "- sections는 문서의 주요 섹션 또는 주제별로 구분.\n"
